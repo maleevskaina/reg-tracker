@@ -1,4 +1,5 @@
-declare module "*.scss" {
+declare module "*Hello, this is my site.
+.scss" {
   const content: string
   export = content
 }

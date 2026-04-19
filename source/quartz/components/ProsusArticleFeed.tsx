@@ -73,7 +73,11 @@ function ArticleCard({ page, href, idx }: CardData & { idx: number }) {
         {region && <span class="jurisdiction-badge">{region}</span>}
       </div>
       <h3 class="card-headline">
-        <a href={href} class="internal">{title}</a>
+        {sourceUrl ? (
+          <a href={sourceUrl} target="_blank" rel="noopener noreferrer">{title}</a>
+        ) : (
+          <a href={href} class="internal">{title}</a>
+        )}
       </h3>
       {summary && <p class="card-summary">{summary}</p>}
       <div class="card-footer">
@@ -113,7 +117,11 @@ function HeroCard({ page, href }: CardData) {
           {region && <span class="jurisdiction-badge">{region}</span>}
         </div>
         <h2 class="hero-headline">
-          <a href={href} class="internal">{title}</a>
+          {sourceUrl ? (
+            <a href={sourceUrl} target="_blank" rel="noopener noreferrer">{title}</a>
+          ) : (
+            <a href={href} class="internal">{title}</a>
+          )}
         </h2>
         {summary && <p class="hero-summary">{summary}</p>}
         <div class="card-footer">

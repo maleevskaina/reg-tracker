@@ -261,10 +261,54 @@
   .tab-panel { display:none; }
   .tab-panel.active { display:block; }
 
+  /* ── PAST NEWS OVERLAY ── */
+  #past-news-overlay {
+    display:none; position:fixed; inset:0; z-index:300;
+    background:var(--bgPage); overflow-y:auto;
+    animation:fadeUp 0.3s ease;
+  }
+  #past-news-overlay.open { display:block; }
+  .past-news-header {
+    background:var(--navy); padding:0 48px; position:sticky; top:0; z-index:10;
+  }
+  .past-news-header::after {
+    content:''; position:absolute; bottom:0; left:0; right:0; height:3px;
+    background:linear-gradient(90deg,var(--mauve),var(--slate),var(--mauve));
+  }
+  .past-news-header-inner {
+    max-width:1140px; margin:0 auto; height:60px;
+    display:flex; align-items:center; justify-content:space-between;
+  }
+  .past-news-title {
+    font-family:'EB Garamond',serif; font-size:20px; font-weight:700;
+    color:var(--textOnDark); letter-spacing:0.3px;
+  }
+  .past-news-close {
+    background:none; border:none; color:var(--blush); font-size:26px; line-height:1;
+    padding:4px 8px; border-radius:6px; transition:background 0.15s;
+  }
+  .past-news-close:hover { background:rgba(147,115,156,0.2); }
+  .past-news-body {
+    max-width:1140px; margin:0 auto; padding:36px 48px 80px;
+  }
+  .date-group { margin-bottom:48px; }
+  .date-group-header {
+    display:flex; align-items:center; gap:16px; margin-bottom:24px;
+    padding-bottom:12px; border-bottom:2px solid var(--borderCard);
+  }
+  .date-group-label {
+    font-family:'EB Garamond',serif; font-size:22px; font-weight:600;
+    color:var(--textHeadline); letter-spacing:-0.2px;
+  }
+  .date-group-count {
+    font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--textMuted);
+  }
+
   @media (max-width: 640px) {
     #masthead, #section-nav, #main, #footer { padding-left:16px; padding-right:16px; }
     .featured-headline { font-size:22px; }
     .masthead-right .team-label, .masthead-right .masthead-divider { display:none; }
+    .past-news-header, .past-news-body { padding-left:16px; padding-right:16px; }
   }
 </style>
 </head>
@@ -296,11 +340,22 @@
 <!-- ═══ DROPDOWN ═══ -->
 <div id="dropdown">
   <div class="dropdown-inner">
-    <button class="dropdown-item" onclick="closeMenu()">Past News Today <span class="new-badge">NEW</span></button>
+    <button class="dropdown-item" onclick="openPastNews()">Past Updates <span class="new-badge">ARCHIVE</span></button>
     <button class="dropdown-item" onclick="closeMenu()">Weekly Intelligence Brief</button>
     <button class="dropdown-item" onclick="closeMenu()">Horizon Scanning</button>
     <button class="dropdown-item" onclick="closeMenu()">About DRT</button>
   </div>
+</div>
+
+<!-- ═══ PAST NEWS OVERLAY ═══ -->
+<div id="past-news-overlay" role="dialog" aria-label="Past updates archive">
+  <div class="past-news-header">
+    <div class="past-news-header-inner">
+      <span class="past-news-title">Past Updates</span>
+      <button class="past-news-close" onclick="closePastNews()" aria-label="Close">&#x2715;</button>
+    </div>
+  </div>
+  <div class="past-news-body" id="past-news-body"></div>
 </div>
 
 <!-- ═══ SECTION TABS ═══ -->
@@ -556,6 +611,82 @@ function renderTabs() {
     btn.addEventListener('mouseleave', () => { if(activeTab!==id) btn.style.color=''; });
     btn.addEventListener('click', () => { activeTab = id; renderTabs(); render(); });
   });
+}
+
+function openPastNews() {
+  closeMenu();
+  renderPastNews();
+  const overlay = document.getElementById('past-news-overlay');
+  overlay.classList.add('open');
+  overlay.scrollTop = 0;
+  document.body.style.overflow = 'hidden';
+}
+function closePastNews() {
+  document.getElementById('past-news-overlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+function renderPastNews() {
+  // Gather all articles across all tabs, deduplicate by headline
+  const seen = new Set();
+  const all = [];
+  tabs.forEach(t => {
+    (articles[t.id] || []).forEach(a => {
+      if (!seen.has(a.headline)) {
+        seen.add(a.headline);
+        all.push(a);
+      }
+    });
+  });
+
+  // Parse dates for sorting (format: "DD Month YYYY")
+  function parseArticleDate(str) {
+    const d = new Date(str);
+    return isNaN(d.getTime()) ? 0 : d.getTime();
+  }
+  all.sort((a, b) => parseArticleDate(b.date) - parseArticleDate(a.date));
+
+  // Group by date string
+  const groups = [];
+  const groupMap = {};
+  all.forEach(a => {
+    if (!groupMap[a.date]) {
+      groupMap[a.date] = [];
+      groups.push(a.date);
+    }
+    groupMap[a.date].push(a);
+  });
+
+  let html = '';
+  groups.forEach(dateLabel => {
+    const items = groupMap[dateLabel];
+    html += `
+    <div class="date-group">
+      <div class="date-group-header">
+        <span class="date-group-label">${dateLabel}</span>
+        <span class="date-group-count">${items.length} update${items.length !== 1 ? 's' : ''}</span>
+      </div>
+      <div class="article-grid" style="grid-template-columns:${items.length < 2 ? '1fr' : '1fr 1fr'}">`;
+    items.forEach((a, i) => {
+      html += `
+        <article class="article-card" style="animation:fadeUp 0.35s ease ${i * 0.06}s both">
+          <div class="card-kicker-row">
+            <span class="kicker" style="color:${a.kickerColor}">${a.kicker}</span>
+            ${statusTag(a.status)}
+            <span class="jurisdiction-badge">${a.jurisdiction}</span>
+          </div>
+          <h3 class="card-headline">${headlineLink(a.headline, a.source_url)}</h3>
+          <p class="card-summary">${a.summary}</p>
+          <div class="card-footer-sm">
+            <span class="card-source">${a.source}</span>
+            <span style="flex:1"></span>
+            <span class="card-signal">${a.signal}</span>
+          </div>
+        </article>`;
+    });
+    html += `</div></div>`;
+  });
+
+  document.getElementById('past-news-body').innerHTML = html;
 }
 
 function toggleMenu() {

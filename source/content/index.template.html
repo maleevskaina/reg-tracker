@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Prosus | Regulatory Monitor</title>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  ::selection { background: #EBD6DD; color: #1A1F40; }
+  :root {
+    --blush: #EBD6DD; --mauve: #93739C; --slate: #3B4475;
+    --black: #030206; --navy: #1A1F40;
+    --bgPage: #F5EEF0; --bgPageAlt: #F0E6E9; --bgCard: #FFFFFF;
+    --bgNav: #F9F2F4; --borderCard: #E2D3D8; --borderLight: #EDE3E7;
+    --textHeadline: #0D0F1A; --textBody: #2E2A35;
+    --textSecondary: #635870; --textMuted: #9A8EA0; --textOnDark: #F5EEF0;
+    --accentLight: #B89BC0;
+    --tagComp: #C0392B; --tagData: #7D3C98; --tagIP: #1E6B50; --tagReg: #B8860B;
+  }
+  html { scroll-behavior: smooth; }
+  body { font-family: 'IBM Plex Sans', sans-serif; background: var(--bgPage); color: var(--textBody); min-height: 100vh; }
+  button { cursor: pointer; }
+
+  @keyframes fadeUp { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
+  @keyframes slideDown { from { opacity:0; transform:translateY(-10px); } to { opacity:1; transform:translateY(0); } }
+  @keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.4; } }
+
+  /* ── SCROLLBAR ── */
+  ::-webkit-scrollbar { width: 4px; height: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--mauve); border-radius: 4px; }
+
+  /* ── MASTHEAD ── */
+  #masthead {
+    background: var(--navy); padding: 0 48px; position: relative; z-index: 200;
+  }
+  #masthead::after {
+    content:''; position:absolute; bottom:0; left:0; right:0; height:3px;
+    background: linear-gradient(90deg, var(--mauve), var(--slate), var(--mauve));
+  }
+  .masthead-inner {
+    max-width:1140px; margin:0 auto; display:flex; align-items:center;
+    justify-content:space-between; height:68px;
+  }
+  .masthead-left { display:flex; align-items:center; gap:20px; }
+  .hamburger { background:none; border:none; display:flex; flex-direction:column; gap:4.5px; padding:4px; }
+  .ham-line {
+    width:22px; height:2px; background:var(--blush); border-radius:1px;
+    transition: all 0.3s;
+    display:block;
+  }
+  .hamburger.open .ham-line:nth-child(1) { transform:rotate(45deg) translate(4.5px,4.5px); }
+  .hamburger.open .ham-line:nth-child(2) { opacity:0; }
+  .hamburger.open .ham-line:nth-child(3) { transform:rotate(-45deg) translate(4.5px,-4.5px); }
+  .masthead-title { display:flex; align-items:baseline; gap:0; }
+  .masthead-title .brand {
+    font-family:'EB Garamond',serif; font-weight:700; font-size:26px;
+    color:var(--textOnDark); letter-spacing:0.5px;
+  }
+  .masthead-title .divider {
+    font-family:'EB Garamond',serif; font-weight:400; font-size:26px;
+    color:var(--mauve); margin:0 10px;
+  }
+  .masthead-title .subtitle {
+    font-family:'EB Garamond',serif; font-weight:700; font-size:20px;
+    color:var(--blush); letter-spacing:0.3px;
+  }
+  .masthead-right { display:flex; align-items:center; gap:18px; }
+  .team-label {
+    font-family:'IBM Plex Sans',sans-serif; font-size:12px; font-weight:500;
+    color:var(--accentLight); letter-spacing:0.3px;
+  }
+  .masthead-divider { width:1px; height:20px; background:rgba(235,214,221,0.2); }
+  .masthead-date {
+    font-family:'EB Garamond',serif; font-size:14px; font-style:italic;
+    color:var(--blush);
+  }
+
+  /* ── DROPDOWN ── */
+  #dropdown {
+    display:none; position:absolute; top:71px; left:0; right:0; z-index:150;
+    background:var(--navy); border-bottom:2px solid var(--mauve);
+    animation: slideDown 0.25s ease;
+  }
+  #dropdown.open { display:block; }
+  .dropdown-inner {
+    max-width:1140px; margin:0 auto; padding:20px 48px;
+    display:flex; flex-direction:column; gap:2px;
+  }
+  .dropdown-item {
+    background:none; border:none; font-family:'EB Garamond',serif; font-size:18px;
+    font-weight:500; color:var(--blush); text-align:left; padding:12px 16px;
+    border-radius:6px; transition:background 0.15s; display:flex; align-items:center; gap:10px;
+  }
+  .dropdown-item:hover { background:rgba(147,115,156,0.15); }
+  .new-badge {
+    font-size:11px; font-family:'IBM Plex Sans',sans-serif; font-weight:600;
+    color:var(--mauve); background:rgba(147,115,156,0.15);
+    padding:2px 8px; border-radius:3px;
+  }
+
+  /* ── NAV TABS ── */
+  #section-nav {
+    background:var(--bgNav); border-bottom:1px solid var(--borderCard);
+    padding:0 48px; position:sticky; top:0; z-index:100;
+  }
+  .nav-inner {
+    max-width:1140px; margin:0 auto; display:flex; gap:0; overflow-x:auto;
+  }
+  .tab-btn {
+    padding:14px 24px; font-size:13.5px; font-weight:500;
+    font-family:'IBM Plex Sans',sans-serif; color:var(--textMuted);
+    background:transparent; border:none; border-bottom:3px solid transparent;
+    white-space:nowrap; transition:all 0.2s ease; letter-spacing:0.2px;
+  }
+  .tab-btn:hover { color: var(--mauve); }
+  .tab-btn.active { font-weight:700; }
+
+  /* ── MAIN ── */
+  #main { max-width:1140px; margin:0 auto; padding:36px 48px 80px; }
+  .section-header {
+    display:flex; align-items:center; justify-content:space-between;
+    margin-bottom:28px; padding-bottom:16px; border-bottom:1px solid var(--borderCard);
+  }
+  .section-title {
+    font-family:'EB Garamond',serif; font-size:28px; font-weight:600;
+    color:var(--textHeadline); letter-spacing:-0.3px;
+  }
+  .article-count {
+    font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--textMuted);
+  }
+
+  /* ── FEATURED CARD ── */
+  .featured-card {
+    background:var(--bgCard); border-radius:14px; padding:36px 40px;
+    margin-bottom:20px; border:1px solid var(--borderCard);
+    box-shadow:0 2px 20px rgba(3,2,6,0.04),0 0 0 1px rgba(147,115,156,0.06);
+    transition:all 0.3s ease;
+    position:relative; overflow:hidden;
+    animation: fadeUp 0.5s ease both;
+  }
+  .featured-card::before {
+    content:''; position:absolute; top:0; left:0; right:0; height:3px;
+    background:linear-gradient(90deg,var(--mauve),var(--slate));
+    border-radius:14px 14px 0 0;
+  }
+  .featured-card:hover {
+    box-shadow:0 6px 32px rgba(3,2,6,0.08),0 0 0 1px rgba(147,115,156,0.12);
+    transform:translateY(-1px);
+  }
+  .card-meta { display:flex; align-items:center; gap:12px; margin-bottom:16px; flex-wrap:wrap; }
+  .kicker {
+    font-family:'IBM Plex Sans',sans-serif; font-size:10.5px; font-weight:700;
+    letter-spacing:1.2px; text-transform:uppercase;
+  }
+  .card-divider { color:var(--borderCard); }
+  .jurisdiction-badge {
+    font-family:'IBM Plex Sans',sans-serif; font-size:11px; font-weight:600;
+    color:#fff; background:var(--slate); padding:2px 8px; border-radius:4px;
+  }
+  .featured-headline {
+    font-family:'EB Garamond',serif; font-size:28px; font-weight:600;
+    line-height:1.35; letter-spacing:-0.3px;
+    margin-bottom:14px; max-width:800px;
+  }
+  .featured-headline a {
+    color:var(--textHeadline); text-decoration:none;
+    transition: color 0.2s ease;
+  }
+  .featured-headline a:hover { color:var(--mauve); }
+  .featured-summary {
+    font-family:'IBM Plex Sans',sans-serif; font-size:15.5px; line-height:1.75;
+    color:var(--textSecondary); margin-bottom:18px; max-width:760px;
+  }
+  .card-footer {
+    display:flex; align-items:center; gap:16px; padding-top:16px;
+    border-top:1px solid var(--borderLight); flex-wrap:wrap;
+  }
+  .card-source {
+    font-family:'EB Garamond',serif; font-size:14px; color:var(--textMuted); font-style:italic;
+  }
+  .card-date {
+    font-family:'EB Garamond',serif; font-size:14px; color:var(--textMuted); font-style:italic;
+  }
+  .card-signal {
+    font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--mauve); font-weight:500;
+    margin-left:auto;
+  }
+
+  /* ── ARTICLE GRID ── */
+  .article-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+  @media (max-width: 700px) { .article-grid { grid-template-columns:1fr; } }
+  .article-card {
+    background:var(--bgCard); border-radius:12px; padding:28px 30px;
+    border:1px solid var(--borderCard); box-shadow:0 1px 12px rgba(3,2,6,0.03);
+    transition:all 0.3s ease;
+    display:flex; flex-direction:column;
+  }
+  .article-card:hover {
+    box-shadow:0 4px 24px rgba(3,2,6,0.07); transform:translateY(-2px);
+    border-color:var(--mauve);
+  }
+  .card-kicker-row { display:flex; align-items:center; gap:10px; margin-bottom:14px; flex-wrap:wrap; }
+  .card-headline {
+    font-family:'EB Garamond',serif; font-size:20px; font-weight:600;
+    line-height:1.4; letter-spacing:-0.2px; margin-bottom:10px;
+  }
+  .card-headline a {
+    color:var(--textHeadline); text-decoration:none;
+    transition: color 0.2s ease;
+  }
+  .card-headline a:hover { color:var(--mauve); }
+  .card-summary {
+    font-family:'IBM Plex Sans',sans-serif; font-size:14px; line-height:1.7;
+    color:var(--textSecondary); margin-bottom:16px; flex:1;
+  }
+  .card-footer-sm {
+    display:flex; align-items:center; gap:8px; padding-top:14px;
+    border-top:1px solid var(--borderLight); flex-wrap:wrap;
+  }
+
+  /* ── STATUS TAGS ── */
+  .status-tag {
+    font-size:11px; font-weight:600; font-family:'IBM Plex Sans',sans-serif;
+    padding:3px 10px; border-radius:4px; letter-spacing:0.3px; white-space:nowrap;
+  }
+
+  /* ── TICKER ── */
+  .ticker-bar {
+    margin-top:40px; padding:18px 24px; border-radius:12px;
+    background:var(--navy); display:flex; align-items:center;
+    justify-content:space-between; flex-wrap:wrap; gap:16px;
+  }
+  .ticker-items { display:flex; align-items:center; gap:20px; flex-wrap:wrap; }
+  .ticker-item { display:flex; align-items:center; gap:6px; }
+  .ticker-dot { width:7px; height:7px; border-radius:50%; }
+  .ticker-label { font-family:'IBM Plex Sans',sans-serif; font-size:12px; color:var(--blush); font-weight:500; }
+  .ticker-count { font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--mauve); font-weight:600; }
+  .ticker-time { font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--accentLight); }
+
+  /* ── FOOTER ── */
+  #footer {
+    border-top:2px solid var(--borderCard); background:var(--bgPageAlt); padding:24px 48px;
+  }
+  .footer-inner {
+    max-width:1140px; margin:0 auto; display:flex; justify-content:space-between;
+    align-items:center; flex-wrap:wrap; gap:10px;
+  }
+  .footer-brand {
+    font-family:'EB Garamond',serif; font-size:16px; font-weight:700; color:var(--navy);
+  }
+  .footer-note {
+    font-family:'IBM Plex Sans',sans-serif; font-size:12px; color:var(--textMuted); margin-left:12px;
+  }
+  .footer-scope {
+    font-family:'IBM Plex Sans',sans-serif; font-size:11px; color:var(--textMuted);
+  }
+
+  /* ── PANEL SECTIONS (hidden by default) ── */
+  .tab-panel { display:none; }
+  .tab-panel.active { display:block; }
+
+  /* ── PAST NEWS OVERLAY ── */
+  #past-news-overlay {
+    display:none; position:fixed; inset:0; z-index:300;
+    background:var(--bgPage); overflow-y:auto;
+    animation:fadeUp 0.3s ease;
+  }
+  #past-news-overlay.open { display:block; }
+  .past-news-header {
+    background:var(--navy); padding:0 48px; position:sticky; top:0; z-index:10;
+  }
+  .past-news-header::after {
+    content:''; position:absolute; bottom:0; left:0; right:0; height:3px;
+    background:linear-gradient(90deg,var(--mauve),var(--slate),var(--mauve));
+  }
+  .past-news-header-inner {
+    max-width:1140px; margin:0 auto; height:60px;
+    display:flex; align-items:center; justify-content:space-between;
+  }
+  .past-news-title {
+    font-family:'EB Garamond',serif; font-size:20px; font-weight:700;
+    color:var(--textOnDark); letter-spacing:0.3px;
+  }
+  .past-news-close {
+    background:none; border:none; color:var(--blush); font-size:26px; line-height:1;
+    padding:4px 8px; border-radius:6px; transition:background 0.15s;
+  }
+  .past-news-close:hover { background:rgba(147,115,156,0.2); }
+  .past-news-body {
+    max-width:1140px; margin:0 auto; padding:36px 48px 80px;
+  }
+  .date-group { margin-bottom:48px; }
+  .date-group-header {
+    display:flex; align-items:center; gap:16px; margin-bottom:24px;
+    padding-bottom:12px; border-bottom:2px solid var(--borderCard);
+  }
+  .date-group-label {
+    font-family:'EB Garamond',serif; font-size:22px; font-weight:600;
+    color:var(--textHeadline); letter-spacing:-0.2px;
+  }
+  .date-group-count {
+    font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--textMuted);
+  }
+
+  @media (max-width: 640px) {
+    #masthead, #section-nav, #main, #footer { padding-left:16px; padding-right:16px; }
+    .featured-headline { font-size:22px; }
+    .masthead-right .team-label, .masthead-right .masthead-divider { display:none; }
+    .past-news-header, .past-news-body { padding-left:16px; padding-right:16px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══ MASTHEAD ═══ -->
+<header id="masthead">
+  <div class="masthead-inner">
+    <div class="masthead-left">
+      <button class="hamburger" id="hamburger" aria-label="Menu" onclick="toggleMenu()">
+        <span class="ham-line"></span>
+        <span class="ham-line"></span>
+        <span class="ham-line"></span>
+      </button>
+      <div class="masthead-title">
+        <span class="brand">PROSUS</span>
+        <span class="divider">|</span>
+        <span class="subtitle">Regulatory Monitor</span>
+      </div>
+    </div>
+    <div class="masthead-right">
+      <span class="team-label">Digital Regulatory Team</span>
+      <div class="masthead-divider"></div>
+      <span class="masthead-date" id="masthead-date"></span>
+    </div>
+  </div>
+</header>
+
+<!-- ═══ DROPDOWN ═══ -->
+<div id="dropdown">
+  <div class="dropdown-inner">
+    <button class="dropdown-item" onclick="openPastNews()">Past Updates <span class="new-badge">ARCHIVE</span></button>
+    <button class="dropdown-item" onclick="closeMenu()">Weekly Intelligence Brief</button>
+    <button class="dropdown-item" onclick="closeMenu()">Horizon Scanning</button>
+    <button class="dropdown-item" onclick="closeMenu()">About DRT</button>
+  </div>
+</div>
+
+<!-- ═══ PAST NEWS OVERLAY ═══ -->
+<div id="past-news-overlay" role="dialog" aria-label="Past updates archive">
+  <div class="past-news-header">
+    <div class="past-news-header-inner">
+      <span class="past-news-title">Past Updates</span>
+      <button class="past-news-close" onclick="closePastNews()" aria-label="Close">&#x2715;</button>
+    </div>
+  </div>
+  <div class="past-news-body" id="past-news-body"></div>
+</div>
+
+<!-- ═══ SECTION TABS ═══ -->
+<nav id="section-nav">
+  <div class="nav-inner" id="tab-nav"></div>
+</nav>
+
+<!-- ═══ MAIN ═══ -->
+<main id="main"></main>
+
+<!-- ═══ FOOTER ═══ -->
+<footer id="footer">
+  <div class="footer-inner">
+    <div>
+      <span class="footer-brand">PROSUS</span>
+      <span class="footer-note">Digital Regulatory Team · Internal Use Only</span>
+    </div>
+    <span class="footer-scope">Data/Privacy · Competition · IP · AI Governance · eCommerce</span>
+  </div>
+</footer>
+
+<script>
+// ── DATA ──
+const C = {
+  mauve:"#93739C", slate:"#3B4475", tagComp:"#C0392B",
+  tagData:"#7D3C98", tagIP:"#1E6B50", tagReg:"#B8860B"
+};
+const STATUS = {
+  developing:    { label:"Developing",          color:"#B8860B", bg:"#FDF6E3" },
+  enforced:      { label:"Enforced",            color:"#C0392B", bg:"#FDEDEC" },
+  adopted:       { label:"Adopted",             color:"#1E6B50", bg:"#EAFAF1" },
+  pending:       { label:"Pending",             color:"#B8860B", bg:"#FDF6E3" },
+  investigation: { label:"Under Investigation", color:"#C0392B", bg:"#FDEDEC" },
+};
+const tabs = [
+  { id:"trending",    label:"Trending Today",     color:C.mauve    },
+  { id:"competition", label:"Competition Law",    color:C.tagComp  },
+  { id:"data",        label:"Data & Privacy",     color:C.tagData  },
+  { id:"ip",          label:"IP Law",             color:C.tagIP    },
+  { id:"regulatory",  label:"Regulatory Changes", color:C.tagReg   },
+];
+// ARTICLES_DATA_PLACEHOLDER
+const articles = {};
+// END_ARTICLES_DATA
+
+// ── STATE ──
+let activeTab = "trending";
+
+// ── HELPERS ──
+function statusTag(s) {
+  return `<span class="status-tag" style="color:${s.color};background:${s.bg}">${s.label}</span>`;
+}
+function headlineLink(text, url) {
+  if (url) {
+    return `<a href="${url}" target="_blank" rel="noopener noreferrer">${text}</a>`;
+  }
+  return text;
+}
+function formatDate() {
+  return new Date().toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+}
+
+// ── RENDER ──
+function render() {
+  const list = articles[activeTab] || [];
+  const featured = activeTab === "trending" ? list.find(a => a.featured) : null;
+  const rest = activeTab === "trending" ? list.filter(a => !a.featured) : list;
+  const tabObj = tabs.find(t => t.id === activeTab);
+
+  let html = `
+    <div class="section-header">
+      <h2 class="section-title">${tabObj.label}</h2>
+      <span class="article-count">${list.length} articles</span>
+    </div>`;
+
+  if (featured) {
+    html += `
+    <article class="featured-card">
+      <div class="card-meta">
+        <span class="kicker" style="color:${featured.kickerColor}">${featured.kicker}</span>
+        <span class="card-divider">·</span>
+        ${statusTag(featured.status)}
+        <span class="card-divider">·</span>
+        <span class="jurisdiction-badge">${featured.jurisdiction}</span>
+      </div>
+      <h3 class="featured-headline">${headlineLink(featured.headline, featured.source_url)}</h3>
+      <p class="featured-summary">${featured.summary}</p>
+      <div class="card-footer">
+        <span class="card-source">${featured.source}</span>
+        <span class="card-divider">·</span>
+        <span class="card-date">${featured.date}</span>
+        <span class="card-signal">${featured.signal}</span>
+      </div>
+    </article>`;
+  }
+
+  html += `<div class="article-grid" style="grid-template-columns:${rest.length < 2 ? '1fr' : '1fr 1fr'}">`;
+  rest.forEach((a, i) => {
+    html += `
+    <article class="article-card" style="animation:fadeUp 0.4s ease ${(i+1)*0.08}s both">
+      <div class="card-kicker-row">
+        <span class="kicker" style="color:${a.kickerColor}">${a.kicker}</span>
+        ${statusTag(a.status)}
+      </div>
+      <h3 class="card-headline">${headlineLink(a.headline, a.source_url)}</h3>
+      <p class="card-summary">${a.summary}</p>
+      <div class="card-footer-sm">
+        <span class="jurisdiction-badge">${a.jurisdiction}</span>
+        <span class="card-source">${a.source}</span>
+        <span style="flex:1"></span>
+        <span class="card-date">${a.date}</span>
+      </div>
+    </article>`;
+  });
+  html += `</div>`;
+
+  // Ticker
+  const tickerItems = tabs.filter(t => t.id !== "trending").map(t =>
+    `<div class="ticker-item">
+      <div class="ticker-dot" style="background:${t.color}"></div>
+      <span class="ticker-label">${t.label}</span>
+      <span class="ticker-count">${(articles[t.id]||[]).length}</span>
+    </div>`).join('');
+  const now = new Date();
+  const ts = now.toLocaleDateString('en-GB',{day:'2-digit',month:'2-digit',year:'numeric'}).replace(/\//g,'.')
+    + ' · ' + now.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'}) + ' CET';
+  html += `
+    <div class="ticker-bar">
+      <div class="ticker-items">${tickerItems}</div>
+      <span class="ticker-time">Last updated: ${ts}</span>
+    </div>`;
+
+  document.getElementById('main').innerHTML = html;
+}
+
+function renderTabs() {
+  const nav = document.getElementById('tab-nav');
+  nav.innerHTML = tabs.map(t => `
+    <button class="tab-btn${activeTab===t.id?' active':''}"
+      data-id="${t.id}"
+      style="${activeTab===t.id?`color:${t.color};border-bottom-color:${t.color}`:''}">
+      ${t.label}
+    </button>`).join('');
+  nav.querySelectorAll('.tab-btn').forEach(btn => {
+    const id = btn.dataset.id;
+    const color = tabs.find(t=>t.id===id).color;
+    btn.addEventListener('mouseenter', () => { if(activeTab!==id) btn.style.color=color; });
+    btn.addEventListener('mouseleave', () => { if(activeTab!==id) btn.style.color=''; });
+    btn.addEventListener('click', () => { activeTab = id; renderTabs(); render(); });
+  });
+}
+
+function openPastNews() {
+  closeMenu();
+  renderPastNews();
+  const overlay = document.getElementById('past-news-overlay');
+  overlay.classList.add('open');
+  overlay.scrollTop = 0;
+  document.body.style.overflow = 'hidden';
+}
+function closePastNews() {
+  document.getElementById('past-news-overlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+function renderPastNews() {
+  // Gather all articles across all tabs, deduplicate by headline
+  const seen = new Set();
+  const all = [];
+  tabs.forEach(t => {
+    (articles[t.id] || []).forEach(a => {
+      if (!seen.has(a.headline)) {
+        seen.add(a.headline);
+        all.push(a);
+      }
+    });
+  });
+
+  // Parse dates for sorting (format: "DD Month YYYY")
+  function parseArticleDate(str) {
+    const d = new Date(str);
+    return isNaN(d.getTime()) ? 0 : d.getTime();
+  }
+  all.sort((a, b) => parseArticleDate(b.date) - parseArticleDate(a.date));
+
+  // Group by date string
+  const groups = [];
+  const groupMap = {};
+  all.forEach(a => {
+    if (!groupMap[a.date]) {
+      groupMap[a.date] = [];
+      groups.push(a.date);
+    }
+    groupMap[a.date].push(a);
+  });
+
+  let html = '';
+  groups.forEach(dateLabel => {
+    const items = groupMap[dateLabel];
+    html += `
+    <div class="date-group">
+      <div class="date-group-header">
+        <span class="date-group-label">${dateLabel}</span>
+        <span class="date-group-count">${items.length} update${items.length !== 1 ? 's' : ''}</span>
+      </div>
+      <div class="article-grid" style="grid-template-columns:${items.length < 2 ? '1fr' : '1fr 1fr'}">`;
+    items.forEach((a, i) => {
+      html += `
+        <article class="article-card" style="animation:fadeUp 0.35s ease ${i * 0.06}s both">
+          <div class="card-kicker-row">
+            <span class="kicker" style="color:${a.kickerColor}">${a.kicker}</span>
+            ${statusTag(a.status)}
+            <span class="jurisdiction-badge">${a.jurisdiction}</span>
+          </div>
+          <h3 class="card-headline">${headlineLink(a.headline, a.source_url)}</h3>
+          <p class="card-summary">${a.summary}</p>
+          <div class="card-footer-sm">
+            <span class="card-source">${a.source}</span>
+            <span style="flex:1"></span>
+            <span class="card-signal">${a.signal}</span>
+          </div>
+        </article>`;
+    });
+    html += `</div></div>`;
+  });
+
+  document.getElementById('past-news-body').innerHTML = html;
+}
+
+function toggleMenu() {
+  const d = document.getElementById('dropdown');
+  const h = document.getElementById('hamburger');
+  d.classList.toggle('open');
+  h.classList.toggle('open');
+}
+function closeMenu() {
+  document.getElementById('dropdown').classList.remove('open');
+  document.getElementById('hamburger').classList.remove('open');
+}
+document.addEventListener('click', function(e) {
+  if (!e.target.closest('#masthead') && !e.target.closest('#dropdown')) closeMenu();
+});
+
+// ── INIT ──
+document.getElementById('masthead-date').textContent = formatDate();
+renderTabs();
+render();
+</script>
+</body>
+</html>

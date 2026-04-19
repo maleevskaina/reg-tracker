@@ -35,6 +35,10 @@ jobs:
         run: chmod +x ./quartz/bootstrap-cli.mjs
         working-directory: ./source
 
+      - name: Generate index.html from markdown updates
+        run: node scripts/build-index.mjs
+        working-directory: ./source
+
       - name: Ensure Quartz builds
         run: npx quartz build --bundleInfo
         working-directory: ./source
@@ -62,6 +66,7 @@ jobs:
       - name: Build Quartz
         run: |
           npm install
+          node scripts/build-index.mjs
           npx quartz build
         working-directory: ./source
 

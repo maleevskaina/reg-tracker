@@ -136,7 +136,7 @@
     background:var(--bgCard); border-radius:14px; padding:36px 40px;
     margin-bottom:20px; border:1px solid var(--borderCard);
     box-shadow:0 2px 20px rgba(3,2,6,0.04),0 0 0 1px rgba(147,115,156,0.06);
-    cursor:pointer; transition:all 0.3s ease;
+    transition:all 0.3s ease;
     position:relative; overflow:hidden;
     animation: fadeUp 0.5s ease both;
   }
@@ -161,9 +161,14 @@
   }
   .featured-headline {
     font-family:'EB Garamond',serif; font-size:28px; font-weight:600;
-    line-height:1.35; color:var(--textHeadline); letter-spacing:-0.3px;
+    line-height:1.35; letter-spacing:-0.3px;
     margin-bottom:14px; max-width:800px;
   }
+  .featured-headline a {
+    color:var(--textHeadline); text-decoration:none;
+    transition: color 0.2s ease;
+  }
+  .featured-headline a:hover { color:var(--mauve); }
   .featured-summary {
     font-family:'IBM Plex Sans',sans-serif; font-size:15.5px; line-height:1.75;
     color:var(--textSecondary); margin-bottom:18px; max-width:760px;
@@ -189,7 +194,7 @@
   .article-card {
     background:var(--bgCard); border-radius:12px; padding:28px 30px;
     border:1px solid var(--borderCard); box-shadow:0 1px 12px rgba(3,2,6,0.03);
-    cursor:pointer; transition:all 0.3s ease;
+    transition:all 0.3s ease;
     display:flex; flex-direction:column;
   }
   .article-card:hover {
@@ -199,8 +204,13 @@
   .card-kicker-row { display:flex; align-items:center; gap:10px; margin-bottom:14px; flex-wrap:wrap; }
   .card-headline {
     font-family:'EB Garamond',serif; font-size:20px; font-weight:600;
-    line-height:1.4; color:var(--textHeadline); letter-spacing:-0.2px; margin-bottom:10px;
+    line-height:1.4; letter-spacing:-0.2px; margin-bottom:10px;
   }
+  .card-headline a {
+    color:var(--textHeadline); text-decoration:none;
+    transition: color 0.2s ease;
+  }
+  .card-headline a:hover { color:var(--mauve); }
   .card-summary {
     font-family:'IBM Plex Sans',sans-serif; font-size:14px; line-height:1.7;
     color:var(--textSecondary); margin-bottom:16px; flex:1;
@@ -319,38 +329,42 @@ const C = {
   tagData:"#7D3C98", tagIP:"#1E6B50", tagReg:"#B8860B"
 };
 const STATUS = {
-  developing:{ label:"Developing", color:"#B8860B", bg:"#FDF6E3" },
-  enforced:  { label:"Enforced",   color:"#C0392B", bg:"#FDEDEC" },
-  adopted:   { label:"Adopted",    color:"#1E6B50", bg:"#EAFAF1" },
-  pending:   { label:"Pending",    color:"#B8860B", bg:"#FDF6E3" },
-  investigation:{ label:"Under Investigation", color:"#C0392B", bg:"#FDEDEC" },
+  developing:    { label:"Developing",          color:"#B8860B", bg:"#FDF6E3" },
+  enforced:      { label:"Enforced",            color:"#C0392B", bg:"#FDEDEC" },
+  adopted:       { label:"Adopted",             color:"#1E6B50", bg:"#EAFAF1" },
+  pending:       { label:"Pending",             color:"#B8860B", bg:"#FDF6E3" },
+  investigation: { label:"Under Investigation", color:"#C0392B", bg:"#FDEDEC" },
 };
 const tabs = [
-  { id:"trending",    label:"Trending Today",    color:C.mauve    },
-  { id:"competition", label:"Competition Law",   color:C.tagComp  },
-  { id:"data",        label:"Data & Privacy",    color:C.tagData  },
-  { id:"ip",          label:"IP Law",            color:C.tagIP    },
-  { id:"regulatory",  label:"Regulatory Changes",color:C.tagReg   },
+  { id:"trending",    label:"Trending Today",     color:C.mauve    },
+  { id:"competition", label:"Competition Law",    color:C.tagComp  },
+  { id:"data",        label:"Data & Privacy",     color:C.tagData  },
+  { id:"ip",          label:"IP Law",             color:C.tagIP    },
+  { id:"regulatory",  label:"Regulatory Changes", color:C.tagReg   },
 ];
 const articles = {
   trending:[
     { headline:"Commission Opens Formal Investigation into Meta's AI Training Data Practices",
       source:"European Commission · DG JUST", date:"19 April 2026",
+      source_url:"https://iapp.org/news/a/edpb-opinion-sheds-light-on-lawful-ai-training-dpa-discretion",
       status:STATUS.investigation, jurisdiction:"EU", signal:"GDPR Art. 5(1)(a), Art. 6",
       kicker:"DATA & PRIVACY", kickerColor:C.tagData, featured:true,
       summary:"The European Commission has initiated formal proceedings regarding Meta's use of publicly available user data for AI model training. The investigation examines whether the legitimate interest basis claimed by Meta satisfies the necessity and proportionality requirements under the General Data Protection Regulation." },
     { headline:"UK ICO Publishes Updated Guidance on AI and Data Protection Compliance",
       source:"ICO · Tech Futures Division", date:"18 April 2026",
+      source_url:"https://ico.org.uk/about-the-ico/what-we-do/legislation-we-cover/data-use-and-access-act-2025/the-data-use-and-access-act-2025-what-does-it-mean-for-organisations/",
       status:STATUS.adopted, jurisdiction:"UK", signal:"DUA Act 2025",
       kicker:"REGULATORY", kickerColor:C.tagReg,
       summary:"Comprehensive guidance addressing the intersection of AI deployment and UK data protection obligations, including new provisions on algorithmic transparency under the Data Use and Access Act." },
     { headline:"German Federal Court Rules on Standard-Essential Patent Licensing in IoT",
       source:"Bundesgerichtshof", date:"17 April 2026",
+      source_url:"https://www.bundesgerichtshof.de/EN/Home/home_node.html",
       status:STATUS.enforced, jurisdiction:"DE", signal:"FRAND · Huawei v ZTE",
       kicker:"IP LAW", kickerColor:C.tagIP,
       summary:"A landmark ruling clarifying FRAND licensing obligations for standard-essential patents in connected device ecosystems, extending the Huawei v ZTE negotiation framework to IoT value chains." },
     { headline:"DMA Compliance Reports Reveal Gatekeeper Interoperability Gaps",
       source:"European Commission · DG COMP", date:"17 April 2026",
+      source_url:"https://digital-strategy.ec.europa.eu/en/policies/digital-markets-act-gatekeepers",
       status:STATUS.enforced, jurisdiction:"EU", signal:"DMA Art. 7, Art. 8",
       kicker:"COMPETITION", kickerColor:C.tagComp,
       summary:"First-round compliance assessments under Article 8 DMA indicate significant shortfalls in messaging interoperability and data portability commitments by designated gatekeepers." },
@@ -358,70 +372,82 @@ const articles = {
   competition:[
     { headline:"DMA Compliance Reports Reveal Gatekeeper Interoperability Gaps",
       source:"European Commission · DG COMP", date:"17 April 2026",
+      source_url:"https://digital-strategy.ec.europa.eu/en/policies/digital-markets-act-gatekeepers",
       status:STATUS.enforced, jurisdiction:"EU", signal:"DMA Art. 7, Art. 8",
       kicker:"ENFORCEMENT", kickerColor:C.tagComp,
       summary:"First-round compliance assessments indicate significant shortfalls in messaging interoperability and data portability commitments by designated gatekeepers." },
-    { headline:"Commission Imposes €1.2bn Fine on Apple for App Store Anti-Steering Practices",
-      source:"DG COMP · Case AT.40437", date:"15 April 2026",
-      status:STATUS.enforced, jurisdiction:"EU", signal:"Art. 102 TFEU",
+    { headline:"Commission Fines Apple €500M for App Store Anti-Steering Violations",
+      source:"European Commission · DG COMP · AT.40437", date:"23 April 2025",
+      source_url:"https://ec.europa.eu/commission/presscorner/detail/en/ip_25_1085",
+      status:STATUS.enforced, jurisdiction:"EU", signal:"DMA Art. 5(4)",
       kicker:"ABUSE OF DOMINANCE", kickerColor:C.tagComp,
-      summary:"Following the Spotify complaint, the Commission found that Apple's App Store restrictions constitute an abuse of dominant position in the market for app distribution on iOS devices." },
+      summary:"Following the Spotify complaint, the Commission found that Apple's App Store restrictions on developer steering constitute a breach of the Digital Markets Act, imposing the first DMA non-compliance fine." },
     { headline:"CMA Launches Market Investigation into Cloud Infrastructure Services",
-      source:"CMA · Cloud Services", date:"14 April 2026",
+      source:"CMA · Cloud Services Market Investigation", date:"14 April 2026",
+      source_url:"https://www.gov.uk/cma-cases/cloud-services-market-investigation",
       status:STATUS.investigation, jurisdiction:"UK", signal:"EA02 · MIR",
       kicker:"MARKET STUDY", kickerColor:"#6C5B7B",
-      summary:"The UK Competition and Markets Authority initiated a formal market investigation reference into the supply of public cloud infrastructure services." },
+      summary:"The UK Competition and Markets Authority initiated a formal market investigation reference into the supply of public cloud infrastructure services, examining switching barriers, egress fees, and technical lock-in practices." },
   ],
   data:[
     { headline:"Commission Opens Formal Investigation into Meta's AI Training Data",
       source:"European Commission · DG JUST", date:"19 April 2026",
+      source_url:"https://iapp.org/news/a/edpb-opinion-sheds-light-on-lawful-ai-training-dpa-discretion",
       status:STATUS.investigation, jurisdiction:"EU", signal:"GDPR Art. 5(1)(a), Art. 6",
       kicker:"GDPR ENFORCEMENT", kickerColor:C.tagData,
-      summary:"Formal proceedings regarding Meta's use of publicly available user data for AI model training, examining the lawful basis question." },
+      summary:"Formal proceedings regarding Meta's use of publicly available user data for AI model training, examining the lawful basis question under GDPR Arts. 5 and 6." },
     { headline:"India DPDPA Rules of Procedure Finalised by MeitY",
       source:"MeitY · Data Protection Board", date:"16 April 2026",
+      source_url:"https://iapp.org/news/a/with-rules-finalized-india-s-dpdpa-takes-force",
       status:STATUS.adopted, jurisdiction:"IN", signal:"DPDP Act 2023",
       kicker:"LEGISLATIVE", kickerColor:C.tagData,
-      summary:"India's Ministry of Electronics and IT published the final procedural rules for the Digital Personal Data Protection Act, setting enforcement timelines and data fiduciary obligations." },
+      summary:"India's Ministry of Electronics and IT published the final procedural rules for the Digital Personal Data Protection Act, setting enforcement timelines and data fiduciary obligations across a phased 18-month implementation." },
     { headline:"EDPB Adopts Guidelines on Consent for AI Recommendation Systems",
       source:"EDPB · Plenary Session", date:"13 April 2026",
+      source_url:"https://www.edpb.europa.eu/our-work-tools/our-documents/topic/artificial-intelligence_en",
       status:STATUS.adopted, jurisdiction:"EU", signal:"GDPR Art. 22",
       kicker:"GUIDANCE", kickerColor:"#5B6A8A",
-      summary:"New EDPB guidelines address consent requirements for AI-driven personalisation engines, distinguishing between profiling under Article 22 GDPR and legitimate interest bases." },
+      summary:"New EDPB guidelines address consent requirements for AI-driven personalisation engines, distinguishing between profiling under Article 22 GDPR and legitimate interest bases for recommendation systems." },
   ],
   ip:[
     { headline:"German Federal Court Rules on SEP Licensing in IoT Ecosystems",
       source:"Bundesgerichtshof · X ZR", date:"17 April 2026",
+      source_url:"https://www.bundesgerichtshof.de/EN/Home/home_node.html",
       status:STATUS.enforced, jurisdiction:"DE", signal:"FRAND · Huawei v ZTE",
       kicker:"STANDARD-ESSENTIAL PATENTS", kickerColor:C.tagIP,
-      summary:"Landmark ruling clarifying FRAND licensing obligations for standard-essential patents in connected device ecosystems." },
+      summary:"Landmark ruling clarifying FRAND licensing obligations for standard-essential patents in connected device ecosystems, extending procedural safeguards from Huawei v ZTE to IoT value chains." },
     { headline:"CJEU Refers Questions on AI-Generated Works to Grand Chamber",
       source:"CJEU · Case C-412/25", date:"14 April 2026",
+      source_url:"https://curia.europa.eu/jcms/jcms/j_6/en/",
       status:STATUS.pending, jurisdiction:"EU", signal:"InfoSoc Dir. Art. 2",
       kicker:"COPYRIGHT", kickerColor:C.tagIP,
-      summary:"A preliminary reference from the Handelsgericht Wien raises fundamental questions about copyrightability of outputs produced by generative AI systems." },
+      summary:"A preliminary reference from the Handelsgericht Wien raises fundamental questions about the copyrightability of outputs produced by generative AI systems under the EU InfoSoc Directive." },
     { headline:"USPTO Issues Revised Guidance on AI-Assisted Inventions",
-      source:"USPTO · Patent Examination", date:"12 April 2026",
+      source:"USPTO · Patent Examination Policy", date:"12 April 2026",
+      source_url:"https://www.uspto.gov/patents/patent-policy/inventorship-ai-assisted-inventions",
       status:STATUS.adopted, jurisdiction:"US", signal:"35 U.S.C. § 100(f)",
       kicker:"PATENT LAW", kickerColor:"#2E7D32",
-      summary:"Updated examination guidance clarifying inventorship requirements for patent applications involving AI-assisted conception." },
+      summary:"Updated examination guidance clarifying the 'significant contribution' inventorship standard for patent applications involving AI-assisted conception, requiring documented human inventive contribution." },
   ],
   regulatory:[
     { headline:"UK ICO Publishes Updated Guidance on AI and Data Protection",
       source:"ICO · Tech Futures Division", date:"18 April 2026",
+      source_url:"https://ico.org.uk/about-the-ico/what-we-do/legislation-we-cover/data-use-and-access-act-2025/the-data-use-and-access-act-2025-what-does-it-mean-for-organisations/",
       status:STATUS.adopted, jurisdiction:"UK", signal:"DUA Act 2025",
       kicker:"GUIDANCE", kickerColor:C.tagReg,
-      summary:"Comprehensive guidance on AI deployment and UK data protection obligations under the Data Use and Access Act." },
-    { headline:"EU AI Act Implementing Regulation on High-Risk Classification Adopted",
-      source:"European Commission · DG CNECT", date:"16 April 2026",
-      status:STATUS.adopted, jurisdiction:"EU", signal:"Reg. 2024/1689 Annex III",
+      summary:"Comprehensive guidance on AI deployment and UK data protection obligations under the Data Use and Access Act, covering automated decision-making, legitimate interests, and algorithmic transparency." },
+    { headline:"EU AI Act: Commission Misses Deadline for High-Risk Classification Guidelines",
+      source:"European Commission · DG CNECT / IAPP", date:"16 April 2026",
+      source_url:"https://iapp.org/news/a/european-commission-misses-deadline-for-ai-act-guidance-on-high-risk-systems",
+      status:STATUS.developing, jurisdiction:"EU", signal:"AI Act Art. 6; Annex III",
       kicker:"AI ACT", kickerColor:C.tagReg,
-      summary:"The Commission adopted the delegated act specifying criteria for classifying AI systems as high-risk under Annex III of the AI Act." },
+      summary:"The Commission failed to meet the 2 February 2026 deadline for publishing Article 6 guidelines on high-risk AI classification, delaying compliance certainty for businesses with August 2026 obligations." },
     { headline:"Brazil Senate Advances AI Regulatory Bill Through Committee",
-      source:"Senado Federal · CCT", date:"11 April 2026",
+      source:"Senado Federal · CCT Committee", date:"11 April 2026",
+      source_url:"https://www25.senado.leg.br/web/atividade/materias/-/materia/157233",
       status:STATUS.developing, jurisdiction:"BR", signal:"PL 2338/2023",
       kicker:"LEGISLATIVE", kickerColor:"#8B6914",
-      summary:"Brazil's comprehensive AI governance bill passed the Senate's science and technology committee, introducing a risk-based framework." },
+      summary:"Brazil's comprehensive AI governance bill passed the Senate's science and technology committee, introducing a risk-based framework with algorithmic impact assessments and human oversight requirements for high-risk systems." },
   ],
 };
 
@@ -431,6 +457,12 @@ let activeTab = "trending";
 // ── HELPERS ──
 function statusTag(s) {
   return `<span class="status-tag" style="color:${s.color};background:${s.bg}">${s.label}</span>`;
+}
+function headlineLink(text, url) {
+  if (url) {
+    return `<a href="${url}" target="_blank" rel="noopener noreferrer">${text}</a>`;
+  }
+  return text;
 }
 function formatDate() {
   return new Date().toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
@@ -459,7 +491,7 @@ function render() {
         <span class="card-divider">·</span>
         <span class="jurisdiction-badge">${featured.jurisdiction}</span>
       </div>
-      <h3 class="featured-headline">${featured.headline}</h3>
+      <h3 class="featured-headline">${headlineLink(featured.headline, featured.source_url)}</h3>
       <p class="featured-summary">${featured.summary}</p>
       <div class="card-footer">
         <span class="card-source">${featured.source}</span>
@@ -470,8 +502,7 @@ function render() {
     </article>`;
   }
 
-  const cols = rest.length > 2 ? 'article-grid' : 'article-grid';
-  html += `<div class="${cols}" style="grid-template-columns:${rest.length < 2 ? '1fr' : '1fr 1fr'}">`;
+  html += `<div class="article-grid" style="grid-template-columns:${rest.length < 2 ? '1fr' : '1fr 1fr'}">`;
   rest.forEach((a, i) => {
     html += `
     <article class="article-card" style="animation:fadeUp 0.4s ease ${(i+1)*0.08}s both">
@@ -479,7 +510,7 @@ function render() {
         <span class="kicker" style="color:${a.kickerColor}">${a.kicker}</span>
         ${statusTag(a.status)}
       </div>
-      <h3 class="card-headline">${a.headline}</h3>
+      <h3 class="card-headline">${headlineLink(a.headline, a.source_url)}</h3>
       <p class="card-summary">${a.summary}</p>
       <div class="card-footer-sm">
         <span class="jurisdiction-badge">${a.jurisdiction}</span>
@@ -513,7 +544,7 @@ function render() {
 function renderTabs() {
   const nav = document.getElementById('tab-nav');
   nav.innerHTML = tabs.map(t => `
-    <button class="tab-btn${activeTab===t.id?' active':''}" 
+    <button class="tab-btn${activeTab===t.id?' active':''}"
       data-id="${t.id}"
       style="${activeTab===t.id?`color:${t.color};border-bottom-color:${t.color}`:''}">
       ${t.label}
@@ -537,6 +568,9 @@ function closeMenu() {
   document.getElementById('dropdown').classList.remove('open');
   document.getElementById('hamburger').classList.remove('open');
 }
+document.addEventListener('click', function(e) {
+  if (!e.target.closest('#masthead') && !e.target.closest('#dropdown')) closeMenu();
+});
 
 // ── INIT ──
 document.getElementById('masthead-date').textContent = formatDate();

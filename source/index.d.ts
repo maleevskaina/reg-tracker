@@ -1,4 +1,4 @@
-declare module "*Hello, this is my site!
+declare module "*This is my vault
 .scss" {
   const content: string
   export = content

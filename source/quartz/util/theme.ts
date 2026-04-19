@@ -34,7 +34,8 @@ const DEFAULT_MONO = "ui-monospace, SFMono-Regular, SF Mono, Menlo, monospace"
 
 export function googleFontHref(theme: Theme) {
   const { code, header, body } = theme.typography
-  return `https://fonts.googleapis.com/css2?family=${code}&family=${header}:wght@400;700&family=${body}:ital,wght@0,400;0,600;1,400;1,600&display=swap`
+  const enc = (s: string) => s.replace(/ /g, "+")
+  return `https://fonts.googleapis.com/css2?family=${enc(code)}&family=${enc(header)}:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,700&family=${enc(body)}:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,600&display=swap`
 }
 
 export function joinStyles(theme: Theme, ...stylesheet: string[]) {

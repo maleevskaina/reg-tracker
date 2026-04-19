@@ -1,3 +1,831 @@
 @use "./base.scss";
 
-// put your custom CSS here!
+// ============================================================
+// PROSUS REGULATORY MONITOR — DESIGN SYSTEM
+// ============================================================
+
+// ── Palette tokens ──────────────────────────────────────────
+$blush:       #EBD6DD;
+$mauve:       #93739C;
+$slate-blue:  #3B4475;
+$near-black:  #030206;
+$dark-navy:   #1A1F40;
+$amber-gold:  #C49A5C;
+$gold-pale:   #F8F0E0;
+$page-bg:     #F5EEF0;
+$card-border: #E2D3D8;
+$muted:       #9A8EA0;
+
+$comp-red:    #C0392B;
+$privacy-pur: #7D3C98;
+$ip-green:    #1E6B50;
+$reg-gold:    #B8860B;
+
+$masthead-h:  64px;
+$nav-h:       48px;
+
+// ── Text selection ────────────────────────────────────────────
+::selection {
+  background: $blush;
+  color: $dark-navy;
+}
+
+// ── Scrollbar ────────────────────────────────────────────────
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: rgba($mauve, 0.5);
+  border-radius: 2px;
+  &:hover { background: $mauve; }
+}
+
+// ── Base overrides ────────────────────────────────────────────
+html, body {
+  background-color: $page-bg !important;
+  font-family: "IBM Plex Sans", -apple-system, sans-serif !important;
+}
+
+body {
+  padding-top: calc(#{$masthead-h} + #{$nav-h}) !important;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: "EB Garamond", Georgia, serif !important;
+  color: $near-black !important;
+}
+
+a { transition: color 0.2s ease; }
+
+// ── Layout — flatten grid, no sidebars ───────────────────────
+#quartz-body {
+  display: block !important;
+  max-width: 1280px !important;
+  margin: 0 auto !important;
+  padding: 0 2rem 4rem !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+.sidebar {
+  display: none !important;
+}
+
+.center {
+  grid-area: unset !important;
+  width: 100% !important;
+  min-width: 0 !important;
+}
+
+.page-header {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+// Quartz default header element — override, our masthead floats above
+header {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  width: 100% !important;
+  z-index: 1000 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  display: block !important;
+  background: transparent !important;
+}
+
+// Hide default Quartz footer — ProsusFooter replaces it
+.page > #quartz-body > footer {
+  display: none !important;
+}
+
+// ── Masthead ─────────────────────────────────────────────────
+.prosus-masthead {
+  display: block !important;
+  background: $dark-navy;
+  height: $masthead-h;
+  width: 100%;
+  position: relative;
+  z-index: 1000;
+}
+
+.masthead-inner {
+  display: flex;
+  align-items: center;
+  height: $masthead-h;
+  padding: 0 1.5rem;
+  gap: 1rem;
+  position: relative;
+}
+
+.masthead-brand {
+  flex: 1;
+  text-align: center;
+}
+
+.brand-link {
+  text-decoration: none !important;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.brand-prosus {
+  font-family: "EB Garamond", Georgia, serif !important;
+  font-size: 1.35rem;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  color: #fff !important;
+  text-transform: uppercase;
+}
+
+.brand-divider {
+  color: $amber-gold !important;
+  font-size: 1.2rem;
+  font-weight: 300;
+  opacity: 0.8;
+}
+
+.brand-monitor {
+  font-family: "EB Garamond", Georgia, serif !important;
+  font-size: 1.05rem;
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.82) !important;
+  letter-spacing: 0.04em;
+}
+
+.masthead-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.1rem;
+  min-width: 180px;
+}
+
+.masthead-drt {
+  font-family: "IBM Plex Sans", sans-serif;
+  font-size: 0.62rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: $amber-gold;
+}
+
+.masthead-date {
+  font-family: "EB Garamond", Georgia, serif;
+  font-style: italic;
+  font-size: 0.78rem;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.masthead-accent-line {
+  height: 4px;
+  background: linear-gradient(90deg, $mauve 0%, $amber-gold 50%, $mauve 100%);
+  width: 100%;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+}
+
+// ── Hamburger ────────────────────────────────────────────────
+.masthead-left {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.hamburger {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: background 0.2s ease;
+
+  &:hover { background: rgba(255, 255, 255, 0.08); }
+}
+
+.ham-bar {
+  display: block;
+  width: 20px;
+  height: 2px;
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 2px;
+  transition: transform 0.25s ease, opacity 0.25s ease;
+  transform-origin: center;
+}
+
+.hamburger.open {
+  .ham-bar:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+  .ham-bar:nth-child(2) { opacity: 0; transform: scaleX(0); }
+  .ham-bar:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+}
+
+.masthead-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  background: $dark-navy;
+  border: 1px solid rgba($amber-gold, 0.25);
+  border-radius: 8px;
+  min-width: 220px;
+  padding: 0.5rem 0;
+  box-shadow: 0 8px 32px rgba(3, 2, 6, 0.35);
+  opacity: 0;
+  transform: translateY(-8px);
+  pointer-events: none;
+  transition: opacity 0.25s ease, transform 0.25s ease;
+  z-index: 2000;
+
+  &.open {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: all;
+  }
+
+  a {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.55rem 1.1rem;
+    font-family: "IBM Plex Sans", sans-serif;
+    font-size: 0.83rem;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.82) !important;
+    text-decoration: none !important;
+    transition: background 0.15s ease, color 0.15s ease;
+    letter-spacing: 0.01em;
+
+    &:hover {
+      background: rgba($mauve, 0.2);
+      color: #fff !important;
+    }
+  }
+}
+
+.badge-new {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.6rem;
+  font-weight: 700;
+  background: $amber-gold;
+  color: $dark-navy;
+  border-radius: 3px;
+  padding: 1px 5px;
+  letter-spacing: 0.05em;
+}
+
+// ── Sticky Nav Tabs ──────────────────────────────────────────
+.prosus-nav {
+  display: flex !important;
+  position: fixed !important;
+  top: #{$masthead-h} !important;
+  left: 0 !important;
+  right: 0 !important;
+  width: 100% !important;
+  height: #{$nav-h} !important;
+  background: #F9F2F4 !important;
+  border-bottom: 1px solid $card-border !important;
+  z-index: 990 !important;
+  align-items: center !important;
+  gap: 0 !important;
+  padding: 0 1.5rem !important;
+  box-shadow: 0 1px 4px rgba(3, 2, 6, 0.05) !important;
+  overflow-x: auto !important;
+  scrollbar-width: none !important;
+  box-sizing: border-box !important;
+
+  &::-webkit-scrollbar { display: none; }
+}
+
+.prosus-tab {
+  background: none;
+  border: none;
+  border-bottom: 3px solid transparent;
+  padding: 0 1.1rem;
+  height: #{$nav-h};
+  font-family: "EB Garamond", Georgia, serif;
+  font-size: 1rem;
+  font-weight: 600;
+  color: $muted;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: color 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+  letter-spacing: 0.01em;
+  line-height: #{$nav-h};
+
+  &:hover {
+    color: var(--tab-accent);
+    background: rgba(0, 0, 0, 0.02);
+  }
+
+  &.active {
+    color: var(--tab-accent);
+    border-bottom-color: var(--tab-accent);
+    background: rgba(248, 240, 224, 0.5);
+  }
+
+  &[data-tab="trending"] {
+    font-size: 1.05rem;
+  }
+}
+
+// ── Feed Container ───────────────────────────────────────────
+.prosus-feed {
+  margin-top: 0;
+  width: 100%;
+}
+
+.tab-panel {
+  display: none;
+
+  &.active {
+    display: block;
+  }
+}
+
+.feed-empty {
+  font-family: "IBM Plex Sans", sans-serif;
+  font-size: 0.9rem;
+  color: $muted;
+  padding: 2rem 0;
+}
+
+// ── Trending Today Section ───────────────────────────────────
+.tab-panel--trending {
+  background: linear-gradient(180deg, $gold-pale 0%, $page-bg 100%);
+  padding: 2rem 2rem 2.5rem;
+  margin: 0 -2rem;
+}
+
+.trending-header {
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+  margin-bottom: 1.75rem;
+}
+
+.trending-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: $dark-navy;
+  color: $amber-gold;
+  border-radius: 100px;
+  padding: 0.35rem 0.9rem;
+  font-family: "EB Garamond", Georgia, serif;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.trending-dot {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  background: $amber-gold;
+  border-radius: 50%;
+  animation: pulse-dot 1.8s ease-in-out infinite;
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: 0.5; transform: scale(0.7); }
+}
+
+.trending-rule {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, $amber-gold, transparent);
+  opacity: 0.5;
+}
+
+.trending-hero-card {
+  display: flex;
+  background: #fff;
+  border-radius: 14px;
+  border: 1px solid $card-border;
+  box-shadow: 0 2px 20px rgba(3, 2, 6, 0.05);
+  overflow: hidden;
+  margin-bottom: 2rem;
+  transition: box-shadow 0.25s ease, transform 0.25s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 28px rgba(147, 115, 156, 0.18);
+    border-color: rgba($mauve, 0.3);
+  }
+}
+
+.hero-sidebar {
+  width: 6px;
+  min-height: 100%;
+  background: linear-gradient(180deg, $amber-gold 0%, $mauve 100%);
+  flex-shrink: 0;
+}
+
+.hero-body {
+  padding: 1.75rem 2rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.hero-headline {
+  font-family: "EB Garamond", Georgia, serif !important;
+  font-size: 1.875rem !important;
+  font-weight: 700 !important;
+  line-height: 1.22 !important;
+  color: $near-black !important;
+  margin: 0.6rem 0 0.8rem !important;
+
+  a {
+    color: $near-black !important;
+    text-decoration: none !important;
+    &:hover { color: $mauve !important; }
+  }
+}
+
+.hero-summary {
+  font-family: "IBM Plex Sans", sans-serif;
+  font-size: 0.93rem;
+  line-height: 1.65;
+  color: #333 !important;
+  margin: 0 0 1.2rem !important;
+}
+
+.also-trending-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin: 0.5rem 0 1.25rem;
+
+  span {
+    font-family: "EB Garamond", Georgia, serif;
+    font-size: 0.9rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: $mauve;
+    white-space: nowrap;
+  }
+}
+
+.also-trending-rule {
+  flex: 1;
+  height: 1px;
+  background: $mauve;
+  opacity: 0.35;
+}
+
+// ── Panel header ─────────────────────────────────────────────
+.panel-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin: 2rem 0 1.5rem;
+}
+
+.panel-title {
+  font-family: "EB Garamond", Georgia, serif !important;
+  font-size: 1.3rem !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.04em !important;
+  white-space: nowrap !important;
+  margin: 0 !important;
+}
+
+.panel-rule {
+  flex: 1;
+  height: 2px;
+  border-radius: 1px;
+  opacity: 0.4;
+}
+
+// ── Cards Grid ───────────────────────────────────────────────
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.25rem;
+
+  &.cards-grid--single {
+    grid-template-columns: 1fr;
+    max-width: 680px;
+  }
+}
+
+// ── Article Card ─────────────────────────────────────────────
+.reg-card {
+  background: #fff;
+  border-radius: 14px;
+  border: 1px solid $card-border;
+  box-shadow: 0 1px 12px rgba(3, 2, 6, 0.03);
+  padding: 1.25rem 1.4rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  opacity: 0;
+  transform: translateY(16px);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+
+  &.animate-in {
+    animation: card-fade-up 0.4s ease forwards;
+    animation-delay: calc(var(--card-idx, 0) * 80ms);
+  }
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 20px rgba(147, 115, 156, 0.14);
+    border-color: rgba($mauve, 0.45);
+  }
+
+  &.reg-card--critical {
+    border-left: 4px solid $comp-red;
+  }
+}
+
+@keyframes card-fade-up {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.card-top {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.card-kicker {
+  font-family: "IBM Plex Sans", sans-serif;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: $muted;
+}
+
+.jurisdiction-badge {
+  font-family: "IBM Plex Sans", sans-serif;
+  font-size: 0.65rem;
+  font-weight: 600;
+  background: $slate-blue;
+  color: #fff;
+  border-radius: 100px;
+  padding: 2px 8px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.status-tag {
+  font-family: "IBM Plex Sans", sans-serif;
+  font-size: 0.65rem;
+  font-weight: 600;
+  border-radius: 100px;
+  padding: 2px 8px;
+  letter-spacing: 0.04em;
+
+  &.status-adopted             { color: $ip-green;   background: #EAFAF1; }
+  &.status-enforced            { color: $comp-red;   background: #FDEDEC; }
+  &.status-under-investigation { color: $comp-red;   background: #FDEDEC; }
+  &.status-pending             { color: $reg-gold;   background: #FDF6E3; }
+  &.status-developing          { color: $reg-gold;   background: #FDF6E3; }
+}
+
+.card-headline {
+  font-family: "EB Garamond", Georgia, serif !important;
+  font-size: 1.3125rem !important;
+  font-weight: 700 !important;
+  line-height: 1.28 !important;
+  color: $near-black !important;
+  margin: 0 !important;
+  flex: 1;
+
+  a {
+    color: $near-black !important;
+    text-decoration: none !important;
+    &:hover { color: $mauve !important; }
+  }
+}
+
+.card-summary {
+  font-family: "IBM Plex Sans", sans-serif;
+  font-size: 0.845rem;
+  line-height: 1.6;
+  color: #444 !important;
+  margin: 0 !important;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.card-footer {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: auto;
+  padding-top: 0.5rem;
+  border-top: 1px solid rgba($card-border, 0.6);
+}
+
+.card-source-wrap {
+  flex: 1;
+  min-width: 0;
+}
+
+.card-source {
+  font-family: "EB Garamond", Georgia, serif;
+  font-style: italic;
+  font-size: 0.8rem;
+  color: $muted !important;
+  text-decoration: none !important;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: block;
+
+  &:hover { color: $mauve !important; }
+}
+
+.card-date {
+  font-family: "EB Garamond", Georgia, serif;
+  font-style: italic;
+  font-size: 0.78rem;
+  color: rgba($amber-gold, 0.85);
+  white-space: nowrap;
+}
+
+.signal-ref {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.65rem;
+  color: $amber-gold;
+  background: rgba($amber-gold, 0.08);
+  border-radius: 4px;
+  padding: 2px 6px;
+  white-space: nowrap;
+  letter-spacing: 0.02em;
+}
+
+// ── Status Ticker Bar ────────────────────────────────────────
+.status-ticker {
+  background: $dark-navy;
+  border-radius: 14px;
+  margin-top: 2.5rem;
+  padding: 0.75rem 1.4rem;
+}
+
+.ticker-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.ticker-categories {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.ticker-item {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.ticker-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.ticker-label {
+  font-family: "IBM Plex Sans", sans-serif;
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.65);
+  letter-spacing: 0.02em;
+}
+
+.ticker-count {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.ticker-updated {
+  font-family: "EB Garamond", Georgia, serif;
+  font-style: italic;
+  font-size: 0.78rem;
+  color: rgba($amber-gold, 0.9);
+  white-space: nowrap;
+}
+
+// ── Prosus Footer ─────────────────────────────────────────────
+.prosus-footer {
+  display: block !important;
+  background: #F0E6E9;
+  border-top: 2px solid $card-border;
+  margin: 3rem -2rem -4rem;
+  padding: 1.2rem 2rem;
+}
+
+.footer-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  max-width: 1280px;
+  margin: 0 auto;
+}
+
+.footer-brand {
+  font-family: "EB Garamond", Georgia, serif;
+  font-size: 1rem;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  color: $dark-navy;
+  text-transform: uppercase;
+}
+
+.footer-scope {
+  font-family: "IBM Plex Sans", sans-serif;
+  font-size: 0.75rem;
+  color: $muted;
+  letter-spacing: 0.02em;
+}
+
+// ── Article page body ─────────────────────────────────────────
+.center > article {
+  padding-top: 2rem;
+
+  h1, h2 {
+    font-family: "EB Garamond", Georgia, serif !important;
+    color: $near-black !important;
+  }
+
+  p, li {
+    font-family: "IBM Plex Sans", sans-serif;
+    font-size: 0.95rem;
+    line-height: 1.7;
+    color: #333 !important;
+  }
+
+  ul li { list-style: none; }
+
+  a {
+    color: $mauve !important;
+    &:hover { color: $slate-blue !important; }
+  }
+}
+
+.breadcrumb-container {
+  font-family: "IBM Plex Sans", sans-serif;
+  font-size: 0.8rem;
+  color: $muted;
+  margin-bottom: 1rem;
+  a { color: $mauve !important; }
+}
+
+// ── Responsive ───────────────────────────────────────────────
+@media (max-width: 900px) {
+  .cards-grid { grid-template-columns: 1fr; }
+
+  .hero-headline { font-size: 1.5rem !important; }
+
+  .masthead-right { display: none; }
+
+  .brand-monitor { display: none; }
+
+  #quartz-body { padding: 0 1rem 3rem !important; }
+
+  .tab-panel--trending {
+    margin: 0 -1rem;
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  .prosus-footer {
+    margin: 3rem -1rem -3rem;
+    padding: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .prosus-tab {
+    font-size: 0.85rem;
+    padding: 0 0.65rem;
+  }
+}

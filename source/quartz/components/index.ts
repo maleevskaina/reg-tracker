@@ -20,6 +20,9 @@ import MobileOnly from "./MobileOnly"
 import RecentNotes from "./RecentNotes"
 import Breadcrumbs from "./Breadcrumbs"
 import Comments from "./Comments"
+import ProsusHeader from "./ProsusHeader"
+import ProsusFooter from "./ProsusFooter"
+import ProsusArticleFeed from "./ProsusArticleFeed"
 
 export {
   ArticleTitle,
@@ -44,4 +47,7 @@ export {
   NotFound,
   Breadcrumbs,
   Comments,
+  ProsusHeader,
+  ProsusFooter,
+  ProsusArticleFeed,
 }

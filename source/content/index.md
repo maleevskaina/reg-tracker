@@ -1,8 +1,3 @@
 ---
-title: My GitHub Pages Notebook!
+title: " "
 ---
-test
-
-Hello world!
-
-Write some words here!

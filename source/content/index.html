@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Prosus | Regulatory Monitor</title>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  ::selection { background: #EBD6DD; color: #1A1F40; }
+  :root {
+    --blush: #EBD6DD; --mauve: #93739C; --slate: #3B4475;
+    --black: #030206; --navy: #1A1F40;
+    --bgPage: #F5EEF0; --bgPageAlt: #F0E6E9; --bgCard: #FFFFFF;
+    --bgNav: #F9F2F4; --borderCard: #E2D3D8; --borderLight: #EDE3E7;
+    --textHeadline: #0D0F1A; --textBody: #2E2A35;
+    --textSecondary: #635870; --textMuted: #9A8EA0; --textOnDark: #F5EEF0;
+    --accentLight: #B89BC0;
+    --tagComp: #C0392B; --tagData: #7D3C98; --tagIP: #1E6B50; --tagReg: #B8860B;
+  }
+  html { scroll-behavior: smooth; }
+  body { font-family: 'IBM Plex Sans', sans-serif; background: var(--bgPage); color: var(--textBody); min-height: 100vh; }
+  button { cursor: pointer; }
+
+  @keyframes fadeUp { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
+  @keyframes slideDown { from { opacity:0; transform:translateY(-10px); } to { opacity:1; transform:translateY(0); } }
+  @keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.4; } }
+
+  /* ── SCROLLBAR ── */
+  ::-webkit-scrollbar { width: 4px; height: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--mauve); border-radius: 4px; }
+
+  /* ── MASTHEAD ── */
+  #masthead {
+    background: var(--navy); padding: 0 48px; position: relative; z-index: 200;
+  }
+  #masthead::after {
+    content:''; position:absolute; bottom:0; left:0; right:0; height:3px;
+    background: linear-gradient(90deg, var(--mauve), var(--slate), var(--mauve));
+  }
+  .masthead-inner {
+    max-width:1140px; margin:0 auto; display:flex; align-items:center;
+    justify-content:space-between; height:68px;
+  }
+  .masthead-left { display:flex; align-items:center; gap:20px; }
+  .hamburger { background:none; border:none; display:flex; flex-direction:column; gap:4.5px; padding:4px; }
+  .ham-line {
+    width:22px; height:2px; background:var(--blush); border-radius:1px;
+    transition: all 0.3s;
+    display:block;
+  }
+  .hamburger.open .ham-line:nth-child(1) { transform:rotate(45deg) translate(4.5px,4.5px); }
+  .hamburger.open .ham-line:nth-child(2) { opacity:0; }
+  .hamburger.open .ham-line:nth-child(3) { transform:rotate(-45deg) translate(4.5px,-4.5px); }
+  .masthead-title { display:flex; align-items:baseline; gap:0; }
+  .masthead-title .brand {
+    font-family:'EB Garamond',serif; font-weight:700; font-size:26px;
+    color:var(--textOnDark); letter-spacing:0.5px;
+  }
+  .masthead-title .divider {
+    font-family:'EB Garamond',serif; font-weight:400; font-size:26px;
+    color:var(--mauve); margin:0 10px;
+  }
+  .masthead-title .subtitle {
+    font-family:'EB Garamond',serif; font-weight:700; font-size:20px;
+    color:var(--blush); letter-spacing:0.3px;
+  }
+  .masthead-right { display:flex; align-items:center; gap:18px; }
+  .team-label {
+    font-family:'IBM Plex Sans',sans-serif; font-size:12px; font-weight:500;
+    color:var(--accentLight); letter-spacing:0.3px;
+  }
+  .masthead-divider { width:1px; height:20px; background:rgba(235,214,221,0.2); }
+  .masthead-date {
+    font-family:'EB Garamond',serif; font-size:14px; font-style:italic;
+    color:var(--blush);
+  }
+
+  /* ── DROPDOWN ── */
+  #dropdown {
+    display:none; position:absolute; top:71px; left:0; right:0; z-index:150;
+    background:var(--navy); border-bottom:2px solid var(--mauve);
+    animation: slideDown 0.25s ease;
+  }
+  #dropdown.open { display:block; }
+  .dropdown-inner {
+    max-width:1140px; margin:0 auto; padding:20px 48px;
+    display:flex; flex-direction:column; gap:2px;
+  }
+  .dropdown-item {
+    background:none; border:none; font-family:'EB Garamond',serif; font-size:18px;
+    font-weight:500; color:var(--blush); text-align:left; padding:12px 16px;
+    border-radius:6px; transition:background 0.15s; display:flex; align-items:center; gap:10px;
+  }
+  .dropdown-item:hover { background:rgba(147,115,156,0.15); }
+  .new-badge {
+    font-size:11px; font-family:'IBM Plex Sans',sans-serif; font-weight:600;
+    color:var(--mauve); background:rgba(147,115,156,0.15);
+    padding:2px 8px; border-radius:3px;
+  }
+
+  /* ── NAV TABS ── */
+  #section-nav {
+    background:var(--bgNav); border-bottom:1px solid var(--borderCard);
+    padding:0 48px; position:sticky; top:0; z-index:100;
+  }
+  .nav-inner {
+    max-width:1140px; margin:0 auto; display:flex; gap:0; overflow-x:auto;
+  }
+  .tab-btn {
+    padding:14px 24px; font-size:13.5px; font-weight:500;
+    font-family:'IBM Plex Sans',sans-serif; color:var(--textMuted);
+    background:transparent; border:none; border-bottom:3px solid transparent;
+    white-space:nowrap; transition:all 0.2s ease; letter-spacing:0.2px;
+  }
+  .tab-btn:hover { color: var(--mauve); }
+  .tab-btn.active { font-weight:700; }
+
+  /* ── MAIN ── */
+  #main { max-width:1140px; margin:0 auto; padding:36px 48px 80px; }
+  .section-header {
+    display:flex; align-items:center; justify-content:space-between;
+    margin-bottom:28px; padding-bottom:16px; border-bottom:1px solid var(--borderCard);
+  }
+  .section-title {
+    font-family:'EB Garamond',serif; font-size:28px; font-weight:600;
+    color:var(--textHeadline); letter-spacing:-0.3px;
+  }
+  .article-count {
+    font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--textMuted);
+  }
+
+  /* ── FEATURED CARD ── */
+  .featured-card {
+    background:var(--bgCard); border-radius:14px; padding:36px 40px;
+    margin-bottom:20px; border:1px solid var(--borderCard);
+    box-shadow:0 2px 20px rgba(3,2,6,0.04),0 0 0 1px rgba(147,115,156,0.06);
+    cursor:pointer; transition:all 0.3s ease;
+    position:relative; overflow:hidden;
+    animation: fadeUp 0.5s ease both;
+  }
+  .featured-card::before {
+    content:''; position:absolute; top:0; left:0; right:0; height:3px;
+    background:linear-gradient(90deg,var(--mauve),var(--slate));
+    border-radius:14px 14px 0 0;
+  }
+  .featured-card:hover {
+    box-shadow:0 6px 32px rgba(3,2,6,0.08),0 0 0 1px rgba(147,115,156,0.12);
+    transform:translateY(-1px);
+  }
+  .card-meta { display:flex; align-items:center; gap:12px; margin-bottom:16px; flex-wrap:wrap; }
+  .kicker {
+    font-family:'IBM Plex Sans',sans-serif; font-size:10.5px; font-weight:700;
+    letter-spacing:1.2px; text-transform:uppercase;
+  }
+  .card-divider { color:var(--borderCard); }
+  .jurisdiction-badge {
+    font-family:'IBM Plex Sans',sans-serif; font-size:11px; font-weight:600;
+    color:#fff; background:var(--slate); padding:2px 8px; border-radius:4px;
+  }
+  .featured-headline {
+    font-family:'EB Garamond',serif; font-size:28px; font-weight:600;
+    line-height:1.35; color:var(--textHeadline); letter-spacing:-0.3px;
+    margin-bottom:14px; max-width:800px;
+  }
+  .featured-summary {
+    font-family:'IBM Plex Sans',sans-serif; font-size:15.5px; line-height:1.75;
+    color:var(--textSecondary); margin-bottom:18px; max-width:760px;
+  }
+  .card-footer {
+    display:flex; align-items:center; gap:16px; padding-top:16px;
+    border-top:1px solid var(--borderLight); flex-wrap:wrap;
+  }
+  .card-source {
+    font-family:'EB Garamond',serif; font-size:14px; color:var(--textMuted); font-style:italic;
+  }
+  .card-date {
+    font-family:'EB Garamond',serif; font-size:14px; color:var(--textMuted); font-style:italic;
+  }
+  .card-signal {
+    font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--mauve); font-weight:500;
+    margin-left:auto;
+  }
+
+  /* ── ARTICLE GRID ── */
+  .article-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+  @media (max-width: 700px) { .article-grid { grid-template-columns:1fr; } }
+  .article-card {
+    background:var(--bgCard); border-radius:12px; padding:28px 30px;
+    border:1px solid var(--borderCard); box-shadow:0 1px 12px rgba(3,2,6,0.03);
+    cursor:pointer; transition:all 0.3s ease;
+    display:flex; flex-direction:column;
+  }
+  .article-card:hover {
+    box-shadow:0 4px 24px rgba(3,2,6,0.07); transform:translateY(-2px);
+    border-color:var(--mauve);
+  }
+  .card-kicker-row { display:flex; align-items:center; gap:10px; margin-bottom:14px; flex-wrap:wrap; }
+  .card-headline {
+    font-family:'EB Garamond',serif; font-size:20px; font-weight:600;
+    line-height:1.4; color:var(--textHeadline); letter-spacing:-0.2px; margin-bottom:10px;
+  }
+  .card-summary {
+    font-family:'IBM Plex Sans',sans-serif; font-size:14px; line-height:1.7;
+    color:var(--textSecondary); margin-bottom:16px; flex:1;
+  }
+  .card-footer-sm {
+    display:flex; align-items:center; gap:8px; padding-top:14px;
+    border-top:1px solid var(--borderLight); flex-wrap:wrap;
+  }
+
+  /* ── STATUS TAGS ── */
+  .status-tag {
+    font-size:11px; font-weight:600; font-family:'IBM Plex Sans',sans-serif;
+    padding:3px 10px; border-radius:4px; letter-spacing:0.3px; white-space:nowrap;
+  }
+
+  /* ── TICKER ── */
+  .ticker-bar {
+    margin-top:40px; padding:18px 24px; border-radius:12px;
+    background:var(--navy); display:flex; align-items:center;
+    justify-content:space-between; flex-wrap:wrap; gap:16px;
+  }
+  .ticker-items { display:flex; align-items:center; gap:20px; flex-wrap:wrap; }
+  .ticker-item { display:flex; align-items:center; gap:6px; }
+  .ticker-dot { width:7px; height:7px; border-radius:50%; }
+  .ticker-label { font-family:'IBM Plex Sans',sans-serif; font-size:12px; color:var(--blush); font-weight:500; }
+  .ticker-count { font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--mauve); font-weight:600; }
+  .ticker-time { font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--accentLight); }
+
+  /* ── FOOTER ── */
+  #footer {
+    border-top:2px solid var(--borderCard); background:var(--bgPageAlt); padding:24px 48px;
+  }
+  .footer-inner {
+    max-width:1140px; margin:0 auto; display:flex; justify-content:space-between;
+    align-items:center; flex-wrap:wrap; gap:10px;
+  }
+  .footer-brand {
+    font-family:'EB Garamond',serif; font-size:16px; font-weight:700; color:var(--navy);
+  }
+  .footer-note {
+    font-family:'IBM Plex Sans',sans-serif; font-size:12px; color:var(--textMuted); margin-left:12px;
+  }
+  .footer-scope {
+    font-family:'IBM Plex Sans',sans-serif; font-size:11px; color:var(--textMuted);
+  }
+
+  /* ── PANEL SECTIONS (hidden by default) ── */
+  .tab-panel { display:none; }
+  .tab-panel.active { display:block; }
+
+  @media (max-width: 640px) {
+    #masthead, #section-nav, #main, #footer { padding-left:16px; padding-right:16px; }
+    .featured-headline { font-size:22px; }
+    .masthead-right .team-label, .masthead-right .masthead-divider { display:none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══ MASTHEAD ═══ -->
+<header id="masthead">
+  <div class="masthead-inner">
+    <div class="masthead-left">
+      <button class="hamburger" id="hamburger" aria-label="Menu" onclick="toggleMenu()">
+        <span class="ham-line"></span>
+        <span class="ham-line"></span>
+        <span class="ham-line"></span>
+      </button>
+      <div class="masthead-title">
+        <span class="brand">PROSUS</span>
+        <span class="divider">|</span>
+        <span class="subtitle">Regulatory Monitor</span>
+      </div>
+    </div>
+    <div class="masthead-right">
+      <span class="team-label">Digital Regulatory Team</span>
+      <div class="masthead-divider"></div>
+      <span class="masthead-date" id="masthead-date"></span>
+    </div>
+  </div>
+</header>
+
+<!-- ═══ DROPDOWN ═══ -->
+<div id="dropdown">
+  <div class="dropdown-inner">
+    <button class="dropdown-item" onclick="closeMenu()">Past News Today <span class="new-badge">NEW</span></button>
+    <button class="dropdown-item" onclick="closeMenu()">Weekly Intelligence Brief</button>
+    <button class="dropdown-item" onclick="closeMenu()">Horizon Scanning</button>
+    <button class="dropdown-item" onclick="closeMenu()">About DRT</button>
+  </div>
+</div>
+
+<!-- ═══ SECTION TABS ═══ -->
+<nav id="section-nav">
+  <div class="nav-inner" id="tab-nav"></div>
+</nav>
+
+<!-- ═══ MAIN ═══ -->
+<main id="main"></main>
+
+<!-- ═══ FOOTER ═══ -->
+<footer id="footer">
+  <div class="footer-inner">
+    <div>
+      <span class="footer-brand">PROSUS</span>
+      <span class="footer-note">Digital Regulatory Team · Internal Use Only</span>
+    </div>
+    <span class="footer-scope">Data/Privacy · Competition · IP · AI Governance · eCommerce</span>
+  </div>
+</footer>
+
+<script>
+// ── DATA ──
+const C = {
+  mauve:"#93739C", slate:"#3B4475", tagComp:"#C0392B",
+  tagData:"#7D3C98", tagIP:"#1E6B50", tagReg:"#B8860B"
+};
+const STATUS = {
+  developing:{ label:"Developing", color:"#B8860B", bg:"#FDF6E3" },
+  enforced:  { label:"Enforced",   color:"#C0392B", bg:"#FDEDEC" },
+  adopted:   { label:"Adopted",    color:"#1E6B50", bg:"#EAFAF1" },
+  pending:   { label:"Pending",    color:"#B8860B", bg:"#FDF6E3" },
+  investigation:{ label:"Under Investigation", color:"#C0392B", bg:"#FDEDEC" },
+};
+const tabs = [
+  { id:"trending",    label:"Trending Today",    color:C.mauve    },
+  { id:"competition", label:"Competition Law",   color:C.tagComp  },
+  { id:"data",        label:"Data & Privacy",    color:C.tagData  },
+  { id:"ip",          label:"IP Law",            color:C.tagIP    },
+  { id:"regulatory",  label:"Regulatory Changes",color:C.tagReg   },
+];
+const articles = {
+  trending:[
+    { headline:"Commission Opens Formal Investigation into Meta's AI Training Data Practices",
+      source:"European Commission · DG JUST", date:"19 April 2026",
+      status:STATUS.investigation, jurisdiction:"EU", signal:"GDPR Art. 5(1)(a), Art. 6",
+      kicker:"DATA & PRIVACY", kickerColor:C.tagData, featured:true,
+      summary:"The European Commission has initiated formal proceedings regarding Meta's use of publicly available user data for AI model training. The investigation examines whether the legitimate interest basis claimed by Meta satisfies the necessity and proportionality requirements under the General Data Protection Regulation." },
+    { headline:"UK ICO Publishes Updated Guidance on AI and Data Protection Compliance",
+      source:"ICO · Tech Futures Division", date:"18 April 2026",
+      status:STATUS.adopted, jurisdiction:"UK", signal:"DUA Act 2025",
+      kicker:"REGULATORY", kickerColor:C.tagReg,
+      summary:"Comprehensive guidance addressing the intersection of AI deployment and UK data protection obligations, including new provisions on algorithmic transparency under the Data Use and Access Act." },
+    { headline:"German Federal Court Rules on Standard-Essential Patent Licensing in IoT",
+      source:"Bundesgerichtshof", date:"17 April 2026",
+      status:STATUS.enforced, jurisdiction:"DE", signal:"FRAND · Huawei v ZTE",
+      kicker:"IP LAW", kickerColor:C.tagIP,
+      summary:"A landmark ruling clarifying FRAND licensing obligations for standard-essential patents in connected device ecosystems, extending the Huawei v ZTE negotiation framework to IoT value chains." },
+    { headline:"DMA Compliance Reports Reveal Gatekeeper Interoperability Gaps",
+      source:"European Commission · DG COMP", date:"17 April 2026",
+      status:STATUS.enforced, jurisdiction:"EU", signal:"DMA Art. 7, Art. 8",
+      kicker:"COMPETITION", kickerColor:C.tagComp,
+      summary:"First-round compliance assessments under Article 8 DMA indicate significant shortfalls in messaging interoperability and data portability commitments by designated gatekeepers." },
+  ],
+  competition:[
+    { headline:"DMA Compliance Reports Reveal Gatekeeper Interoperability Gaps",
+      source:"European Commission · DG COMP", date:"17 April 2026",
+      status:STATUS.enforced, jurisdiction:"EU", signal:"DMA Art. 7, Art. 8",
+      kicker:"ENFORCEMENT", kickerColor:C.tagComp,
+      summary:"First-round compliance assessments indicate significant shortfalls in messaging interoperability and data portability commitments by designated gatekeepers." },
+    { headline:"Commission Imposes €1.2bn Fine on Apple for App Store Anti-Steering Practices",
+      source:"DG COMP · Case AT.40437", date:"15 April 2026",
+      status:STATUS.enforced, jurisdiction:"EU", signal:"Art. 102 TFEU",
+      kicker:"ABUSE OF DOMINANCE", kickerColor:C.tagComp,
+      summary:"Following the Spotify complaint, the Commission found that Apple's App Store restrictions constitute an abuse of dominant position in the market for app distribution on iOS devices." },
+    { headline:"CMA Launches Market Investigation into Cloud Infrastructure Services",
+      source:"CMA · Cloud Services", date:"14 April 2026",
+      status:STATUS.investigation, jurisdiction:"UK", signal:"EA02 · MIR",
+      kicker:"MARKET STUDY", kickerColor:"#6C5B7B",
+      summary:"The UK Competition and Markets Authority initiated a formal market investigation reference into the supply of public cloud infrastructure services." },
+  ],
+  data:[
+    { headline:"Commission Opens Formal Investigation into Meta's AI Training Data",
+      source:"European Commission · DG JUST", date:"19 April 2026",
+      status:STATUS.investigation, jurisdiction:"EU", signal:"GDPR Art. 5(1)(a), Art. 6",
+      kicker:"GDPR ENFORCEMENT", kickerColor:C.tagData,
+      summary:"Formal proceedings regarding Meta's use of publicly available user data for AI model training, examining the lawful basis question." },
+    { headline:"India DPDPA Rules of Procedure Finalised by MeitY",
+      source:"MeitY · Data Protection Board", date:"16 April 2026",
+      status:STATUS.adopted, jurisdiction:"IN", signal:"DPDP Act 2023",
+      kicker:"LEGISLATIVE", kickerColor:C.tagData,
+      summary:"India's Ministry of Electronics and IT published the final procedural rules for the Digital Personal Data Protection Act, setting enforcement timelines and data fiduciary obligations." },
+    { headline:"EDPB Adopts Guidelines on Consent for AI Recommendation Systems",
+      source:"EDPB · Plenary Session", date:"13 April 2026",
+      status:STATUS.adopted, jurisdiction:"EU", signal:"GDPR Art. 22",
+      kicker:"GUIDANCE", kickerColor:"#5B6A8A",
+      summary:"New EDPB guidelines address consent requirements for AI-driven personalisation engines, distinguishing between profiling under Article 22 GDPR and legitimate interest bases." },
+  ],
+  ip:[
+    { headline:"German Federal Court Rules on SEP Licensing in IoT Ecosystems",
+      source:"Bundesgerichtshof · X ZR", date:"17 April 2026",
+      status:STATUS.enforced, jurisdiction:"DE", signal:"FRAND · Huawei v ZTE",
+      kicker:"STANDARD-ESSENTIAL PATENTS", kickerColor:C.tagIP,
+      summary:"Landmark ruling clarifying FRAND licensing obligations for standard-essential patents in connected device ecosystems." },
+    { headline:"CJEU Refers Questions on AI-Generated Works to Grand Chamber",
+      source:"CJEU · Case C-412/25", date:"14 April 2026",
+      status:STATUS.pending, jurisdiction:"EU", signal:"InfoSoc Dir. Art. 2",
+      kicker:"COPYRIGHT", kickerColor:C.tagIP,
+      summary:"A preliminary reference from the Handelsgericht Wien raises fundamental questions about copyrightability of outputs produced by generative AI systems." },
+    { headline:"USPTO Issues Revised Guidance on AI-Assisted Inventions",
+      source:"USPTO · Patent Examination", date:"12 April 2026",
+      status:STATUS.adopted, jurisdiction:"US", signal:"35 U.S.C. § 100(f)",
+      kicker:"PATENT LAW", kickerColor:"#2E7D32",
+      summary:"Updated examination guidance clarifying inventorship requirements for patent applications involving AI-assisted conception." },
+  ],
+  regulatory:[
+    { headline:"UK ICO Publishes Updated Guidance on AI and Data Protection",
+      source:"ICO · Tech Futures Division", date:"18 April 2026",
+      status:STATUS.adopted, jurisdiction:"UK", signal:"DUA Act 2025",
+      kicker:"GUIDANCE", kickerColor:C.tagReg,
+      summary:"Comprehensive guidance on AI deployment and UK data protection obligations under the Data Use and Access Act." },
+    { headline:"EU AI Act Implementing Regulation on High-Risk Classification Adopted",
+      source:"European Commission · DG CNECT", date:"16 April 2026",
+      status:STATUS.adopted, jurisdiction:"EU", signal:"Reg. 2024/1689 Annex III",
+      kicker:"AI ACT", kickerColor:C.tagReg,
+      summary:"The Commission adopted the delegated act specifying criteria for classifying AI systems as high-risk under Annex III of the AI Act." },
+    { headline:"Brazil Senate Advances AI Regulatory Bill Through Committee",
+      source:"Senado Federal · CCT", date:"11 April 2026",
+      status:STATUS.developing, jurisdiction:"BR", signal:"PL 2338/2023",
+      kicker:"LEGISLATIVE", kickerColor:"#8B6914",
+      summary:"Brazil's comprehensive AI governance bill passed the Senate's science and technology committee, introducing a risk-based framework." },
+  ],
+};
+
+// ── STATE ──
+let activeTab = "trending";
+
+// ── HELPERS ──
+function statusTag(s) {
+  return `<span class="status-tag" style="color:${s.color};background:${s.bg}">${s.label}</span>`;
+}
+function formatDate() {
+  return new Date().toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+}
+
+// ── RENDER ──
+function render() {
+  const list = articles[activeTab] || [];
+  const featured = activeTab === "trending" ? list.find(a => a.featured) : null;
+  const rest = activeTab === "trending" ? list.filter(a => !a.featured) : list;
+  const tabObj = tabs.find(t => t.id === activeTab);
+
+  let html = `
+    <div class="section-header">
+      <h2 class="section-title">${tabObj.label}</h2>
+      <span class="article-count">${list.length} articles</span>
+    </div>`;
+
+  if (featured) {
+    html += `
+    <article class="featured-card">
+      <div class="card-meta">
+        <span class="kicker" style="color:${featured.kickerColor}">${featured.kicker}</span>
+        <span class="card-divider">·</span>
+        ${statusTag(featured.status)}
+        <span class="card-divider">·</span>
+        <span class="jurisdiction-badge">${featured.jurisdiction}</span>
+      </div>
+      <h3 class="featured-headline">${featured.headline}</h3>
+      <p class="featured-summary">${featured.summary}</p>
+      <div class="card-footer">
+        <span class="card-source">${featured.source}</span>
+        <span class="card-divider">·</span>
+        <span class="card-date">${featured.date}</span>
+        <span class="card-signal">${featured.signal}</span>
+      </div>
+    </article>`;
+  }
+
+  const cols = rest.length > 2 ? 'article-grid' : 'article-grid';
+  html += `<div class="${cols}" style="grid-template-columns:${rest.length < 2 ? '1fr' : '1fr 1fr'}">`;
+  rest.forEach((a, i) => {
+    html += `
+    <article class="article-card" style="animation:fadeUp 0.4s ease ${(i+1)*0.08}s both">
+      <div class="card-kicker-row">
+        <span class="kicker" style="color:${a.kickerColor}">${a.kicker}</span>
+        ${statusTag(a.status)}
+      </div>
+      <h3 class="card-headline">${a.headline}</h3>
+      <p class="card-summary">${a.summary}</p>
+      <div class="card-footer-sm">
+        <span class="jurisdiction-badge">${a.jurisdiction}</span>
+        <span class="card-source">${a.source}</span>
+        <span style="flex:1"></span>
+        <span class="card-date">${a.date}</span>
+      </div>
+    </article>`;
+  });
+  html += `</div>`;
+
+  // Ticker
+  const tickerItems = tabs.filter(t => t.id !== "trending").map(t =>
+    `<div class="ticker-item">
+      <div class="ticker-dot" style="background:${t.color}"></div>
+      <span class="ticker-label">${t.label}</span>
+      <span class="ticker-count">${(articles[t.id]||[]).length}</span>
+    </div>`).join('');
+  const now = new Date();
+  const ts = now.toLocaleDateString('en-GB',{day:'2-digit',month:'2-digit',year:'numeric'}).replace(/\//g,'.')
+    + ' · ' + now.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'}) + ' CET';
+  html += `
+    <div class="ticker-bar">
+      <div class="ticker-items">${tickerItems}</div>
+      <span class="ticker-time">Last updated: ${ts}</span>
+    </div>`;
+
+  document.getElementById('main').innerHTML = html;
+}
+
+function renderTabs() {
+  const nav = document.getElementById('tab-nav');
+  nav.innerHTML = tabs.map(t => `
+    <button class="tab-btn${activeTab===t.id?' active':''}" 
+      data-id="${t.id}"
+      style="${activeTab===t.id?`color:${t.color};border-bottom-color:${t.color}`:''}">
+      ${t.label}
+    </button>`).join('');
+  nav.querySelectorAll('.tab-btn').forEach(btn => {
+    const id = btn.dataset.id;
+    const color = tabs.find(t=>t.id===id).color;
+    btn.addEventListener('mouseenter', () => { if(activeTab!==id) btn.style.color=color; });
+    btn.addEventListener('mouseleave', () => { if(activeTab!==id) btn.style.color=''; });
+    btn.addEventListener('click', () => { activeTab = id; renderTabs(); render(); });
+  });
+}
+
+function toggleMenu() {
+  const d = document.getElementById('dropdown');
+  const h = document.getElementById('hamburger');
+  d.classList.toggle('open');
+  h.classList.toggle('open');
+}
+function closeMenu() {
+  document.getElementById('dropdown').classList.remove('open');
+  document.getElementById('hamburger').classList.remove('open');
+}
+
+// ── INIT ──
+document.getElementById('masthead-date').textContent = formatDate();
+renderTabs();
+render();
+</script>
+</body>
+</html>
